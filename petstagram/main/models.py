@@ -1,14 +1,19 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
 
-from petstagram.main.validators import only_letters_validator
+from petstagram.main.validators import validate_only_letters
+
+from petstagram.main.validators import validate_max_file_size
 
 """
-The user must provide the following information when adding a pet in their profile:
-•	Name - it should consist of maximum 30 characters. All pets' names should be unique for that user.
-•	Type - the user can choose one of the following: "Cat", "Dog", "Bunny", "Parrot", "Fish", or "Other".
-The user may provide the following information when adding a pet to their profile:
-•	Date of birth - pet's day, month, and year of birth.
+The user must provide the following information when uploading a pet's photo in their profile:
+•	Photo - the maximum size of the photo can be 5MB
+•	Tagged pets - the user should tag at least one of their pets. There is no limit in the number of tagged pets
+The user may provide the following information when uploading a pet's photo in their profile:
+•	Description - a user can write any description about the picture, with no limit of words/chars
+Other:
+•	Date and time of publication - when a picture is created (only), the date and time of publication are automatically generated.
+•	Likes - each picture has 0 likes at the beginning, and no one can change it. The number of likes a picture can collect is unlimited.
 
 """
 
@@ -29,7 +34,7 @@ class Profile(models.Model):
         max_length=FIRST_NAME_MAX_LENGTH,
         validators=(
             MinLengthValidator(FIRST_NAME_MIN_LENGTH),
-            only_letters_validator,
+            validate_only_letters,
         ),
     )
 
@@ -37,7 +42,7 @@ class Profile(models.Model):
         max_length=LAST_NAME_MAX_LENGTH,
         validators=(
             MinLengthValidator(LAST_NAME_MIN_LENGTH),
-            only_letters_validator,
+            validate_only_letters,
         ),
     )
 
@@ -99,3 +104,30 @@ class Pet(models.Model):
 
     class Meta:
         unique_together = ('user_profile', 'name')
+
+
+class PetPhoto(models.Model):
+    MAX_IMAGE_SIZE = 5
+
+    photo = models.ImageField(
+        validators=(
+            validate_max_file_size,
+        )
+    )
+
+    tagged_pets = models.ManyToManyField(
+        Pet,
+    )
+
+    description = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    upload_date = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    likes = models.IntegerField(
+        default=0,
+    )
