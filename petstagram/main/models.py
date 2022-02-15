@@ -96,3 +96,6 @@ class Pet(models.Model):
         Profile,
         on_delete=models.CASCADE
     )
+
+    class Meta:
+        unique_together = ('user_profile', 'name')
