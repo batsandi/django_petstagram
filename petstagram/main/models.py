@@ -4,17 +4,12 @@ from django.db import models
 from petstagram.main.validators import only_letters_validator
 
 """
-Profile
-The user must provide the following information in their profile:
-- The first name - it should have at least 2 chars, max - 30 chars, and should consist only of letters.
-- The last name - it should have at least 2 chars, max - 30 chars, and should consist only of letters.
-- Profile picture - the user can link their picture using a URL.
+The user must provide the following information when adding a pet in their profile:
+•	Name - it should consist of maximum 30 characters. All pets' names should be unique for that user.
+•	Type - the user can choose one of the following: "Cat", "Dog", "Bunny", "Parrot", "Fish", or "Other".
+The user may provide the following information when adding a pet to their profile:
+•	Date of birth - pet's day, month, and year of birth.
 
-The user may provide the following information in their profile:
-- Date of birth: day, month, and year of birth.
-- Description - a user can write any description about themselves, no limit of words/chars.
-- Email - a user can only write a valid email address.
-Gender - the user can choose one of the following: "Male", "Female", and "Do not show".
 """
 
 
@@ -65,5 +60,39 @@ class Profile(models.Model):
 
     gender = models.CharField(
         max_length=max([len(x) for x,_ in GENDERS]),
-        choices=GENDERS
+        choices=GENDERS,
+        null=True,
+        blank=True
+    )
+
+
+class Pet(models.Model):
+    NAME_MAX_LENGTH = 30
+
+    CAT = 'Cat'
+    DOG = 'Dog'
+    BUNNY = 'Bunny'
+    PARROT = 'Parrot'
+    FISH = 'Fish'
+    OTHER = 'Other'
+
+    TYPES = [(x, x) for x in (CAT, DOG, BUNNY, PARROT, FISH, OTHER)]
+
+    name = models.CharField(
+        max_length=NAME_MAX_LENGTH
+    )
+
+    type = models.CharField(
+        max_length=max((len(x) for x, _ in TYPES)),
+        choices=TYPES
+    )
+
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    user_profile = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE
     )
